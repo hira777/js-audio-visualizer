@@ -1,0 +1,14 @@
+block var
+doctype html
+html(lang="ja")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1")
+    title #{title}
+    block link
+      link(rel='stylesheet', href=path + "css/style.css")
+  body
+    block body
+
+    block end_of_body
+      script(src=path + "js/" + title + "/app.js")

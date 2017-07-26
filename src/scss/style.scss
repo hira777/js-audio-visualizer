@@ -1,0 +1,47 @@
+@import 'node_modules/reset-css/_reset';
+
+body {
+  background: #161616;
+}
+
+h1 {
+  color: #fff;
+  font-size: 2rem;
+}
+
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 40px;
+
+  .list-item {
+    width: 300px;
+    margin-left: 50px;
+    padding: 20px 0;
+
+    &:first-child {
+      margin-left: 0;
+    }
+
+    a {
+      color: #fff;
+      text-decoration: none;
+      text-align: center;
+
+      img {
+        width: 100%;
+      }
+
+      p {
+        display: block;
+        margin-top: 15px;
+        box-sizing: border-box;
+      }
+    }
+  }
+}
+
+.container {
+  width: 1000px;
+  margin: 30px auto 0;
+}

@@ -1,0 +1,35 @@
+{
+  "name": "js-sound-visualizer",
+  "version": "1.0.0",
+  "description": "",
+  "author": "soarflat",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-core": "^6.24.1",
+    "babel-loader": "^7.0.0",
+    "babel-preset-env": "^1.5.1",
+    "babel-register": "^6.24.1",
+    "browser-sync": "^2.18.12",
+    "node-sass": "^4.5.3",
+    "npm-run-all": "^4.0.2",
+    "pug": "^2.0.0-rc.2",
+    "pug-cli": "^1.0.0-alpha6",
+    "webpack": "^2.6.1"
+  },
+  "scripts": {
+    "server": "browser-sync start --server 'docs'",
+    "build:html": "pug src/pug/views -o docs -P",
+    "build:css": "node-sass --output-style compressed -o docs/css src/scss",
+    "build:js": "webpack",
+    "build": "npm-run-all build:*",
+    "watch:html": "pug src/pug/views -o docs -P -w",
+    "watch:css": "yarn run build:css -- --watch",
+    "watch:js": "webpack --watch",
+    "watch": "npm-run-all --parallel watch:*",
+    "minify": "NODE_ENV=production yarn run webpack -- --optimize-minimize",
+    "webpack": "webpack --colors --display-error-details --progress"
+  },
+  "dependencies": {
+    "reset-css": "^2.2.0"
+  }
+}
