@@ -63,11 +63,107 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 5);
+/******/ 	return __webpack_require__(__webpack_require__.s = 6);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Sound = function () {
+  function Sound(_ref) {
+    var audioCtx = _ref.audioCtx,
+        buffer = _ref.buffer;
+
+    _classCallCheck(this, Sound);
+
+    /**
+     * AudioBufferSourceNodeを生成
+     */
+    this.souce = audioCtx.createBufferSource();
+
+    /**
+     * 音声データ（バッファ）を音源に指定
+     */
+    this.souce.buffer = buffer;
+
+    /**
+     * 音声の時間と周波数を解析するAnalyserNodeを生成
+     */
+    this.analyser = audioCtx.createAnalyser();
+
+    /**
+     *
+     */
+    this.analyser.smoothingTimeConstant = 0.5;
+
+    this.analyser.fftSize = 1024;
+
+    /**
+     * FFTサイズ
+     */
+    this.fftSize = this.analyser.frequencyBinCount;
+
+    /**
+     * 周波数領域の波形データを格納する配列を生成する
+     * this.analyser.frequencyBinCountのデフォルトは1024のため
+     * 1024個のインデックスを持った配列が生成される
+     */
+    this.freqs = new Uint8Array(this.analyser.frequencyBinCount);
+
+    /**
+     * AnalyserNodeにAudioBufferSourceNode接続
+     */
+    this.souce.connect(this.analyser);
+
+    /**
+     * AudioBufferSourceNodeをAnalyserNodeに接続
+     */
+    this.analyser.connect(audioCtx.destination);
+  }
+
+  _createClass(Sound, [{
+    key: "start",
+    value: function start() {
+      this.souce.start(0);
+    }
+  }, {
+    key: "frequencySpectrum",
+    value: function frequencySpectrum() {
+      /**
+       * 周波数領域の波形データを引数の配列freqsに格納する
+       * analyser.fftSize / 2のインデックス数の値がthis.freqsに格納される
+       */
+      this.analyser.getByteFrequencyData(this.freqs);
+
+      var average = this.freqs.reduce(function (sum, value) {
+        return sum + value;
+      }, 0) / this.fftSize;
+
+      return this.freqs.map(function (value) {
+        return value > average ? value - average : 0;
+      });
+    }
+  }]);
+
+  return Sound;
+}();
+
+exports.default = Sound;
+
+/***/ }),
+/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -121,14 +217,14 @@ exports.default = function () {
   return path;
 };
 
-var _isGitHubPage = __webpack_require__(2);
+var _isGitHubPage = __webpack_require__(3);
 
 var _isGitHubPage2 = _interopRequireDefault(_isGitHubPage);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /***/ }),
-/* 1 */
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -170,7 +266,7 @@ exports.default = function (_ref) {
 };
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -185,44 +281,69 @@ exports.default = function () {
 };
 
 /***/ }),
-/* 3 */,
 /* 4 */,
-/* 5 */
+/* 5 */,
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var _Audio = __webpack_require__(7);
+var _Sound = __webpack_require__(0);
 
-var _Audio2 = _interopRequireDefault(_Audio);
+var _Sound2 = _interopRequireDefault(_Sound);
 
-var _loadBuffer = __webpack_require__(1);
+var _loadBuffer = __webpack_require__(2);
 
 var _loadBuffer2 = _interopRequireDefault(_loadBuffer);
 
-var _filePath = __webpack_require__(0);
+var _filePath = __webpack_require__(1);
 
 var _filePath2 = _interopRequireDefault(_filePath);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var c = document.getElementById('canvas');
+var cw = 0;
+var ch = 0;
+c.width = cw = window.innerWidth;
+c.height = ch = window.innerHeight;
+var ctx = c.getContext('2d');
+
 var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-var url = (0, _filePath2.default)() + '/sound/isochronous_free_ver.mp3';
+var url = (0, _filePath2.default)() + '/sound/sample.mp3';
+
+var sound = null;
+
+function setup(buffer) {
+  sound = new _Sound2.default({
+    audioCtx: audioCtx,
+    buffer: buffer
+  });
+
+  ctx.fillStyle = '#fff';
+  sound.start();
+}
+
+function draw() {
+  requestAnimationFrame(draw);
+
+  ctx.clearRect(0, 0, cw, ch);
+
+  var spectrum = sound.frequencySpectrum();
+
+  spectrum.forEach(function (value, index) {
+    ctx.fillRect(index * 3, ch / 2, 1, -value);
+  });
+}
 
 (0, _loadBuffer2.default)({
   audioCtx: audioCtx,
   url: url
 }).then(function (buffer) {
   setup(buffer);
+  draw();
 });
-
-function setup(buffer) {
-  var audio = new _Audio2.default({
-    audioCtx: audioCtx,
-    buffer: buffer
-  });
-}
 
 //
 // let sound;
@@ -344,35 +465,6 @@ function setup(buffer) {
 // };
 //
 // new p5(sketch, document.body);
-
-/***/ }),
-/* 6 */,
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Audio = function Audio(_ref) {
-  var audioCtx = _ref.audioCtx,
-      buffer = _ref.buffer;
-
-  _classCallCheck(this, Audio);
-
-  this.buffer = buffer;
-  this.analyser = audioCtx.createAnalyser();
-  this.analyser.connect(audioCtx.destination);
-  console.log(this.analyser.frequencyBinCount);
-  // this.length = FREQUENCY_LENGTH;
-};
-
-exports.default = Audio;
 
 /***/ })
 /******/ ]);

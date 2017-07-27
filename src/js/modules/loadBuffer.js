@@ -3,6 +3,7 @@
  * @constructor
  * @property {Object} audioCtx オーディオコンテキスト
  * @property {string} url 音声ファイルのURL
+ * @return {Object} buffer 音声ファイルデータ（バッファ）
  */
 export default function ({audioCtx, url}) {
   return new Promise((resolve, reject) => {

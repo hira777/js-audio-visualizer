@@ -1,24 +1,49 @@
-import Audio from '../modules/Audio';
+import Sound from '../modules/Sound';
 
 import loadBuffer from '../modules/loadBuffer';
 import filePath from '../modules/filePath';
 
+const c = document.getElementById('canvas');
+let cw = 0;
+let ch = 0;
+c.width = cw = window.innerWidth;
+c.height = ch = window.innerHeight;
+const ctx = c.getContext('2d');
+
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-const url = `${filePath()}/sound/isochronous_free_ver.mp3`;
+const url = `${filePath()}/sound/sample.mp3`;
+
+let sound = null;
+
+function setup(buffer) {
+  sound = new Sound({
+    audioCtx,
+    buffer,
+  });
+
+  ctx.fillStyle = '#fff';
+  sound.start();
+}
+
+function draw() {
+  requestAnimationFrame(draw);
+
+  ctx.clearRect(0, 0, cw, ch);
+
+  const spectrum = sound.frequencySpectrum();
+
+  spectrum.forEach((value, index) => {
+    ctx.fillRect(index * 3, ch / 2, 1, -value);
+  });
+}
 
 loadBuffer({
   audioCtx,
   url,
 }).then((buffer) => {
   setup(buffer);
+  draw();
 });
-
-function setup(buffer) {
-  const audio = new Audio({
-    audioCtx,
-    buffer,
-  });
-}
 
 
 //
