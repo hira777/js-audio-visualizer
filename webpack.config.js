@@ -3,6 +3,7 @@ const path = require('path');
 module.exports = {
   entry: {
     'visualizer1/app': './src/js/visualizer1/app',
+    'visualizer1-with-p5js/app': './src/js/visualizer1-with-p5js/app',
   },
 
   output: {
