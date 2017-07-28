@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 6);
+/******/ 	return __webpack_require__(__webpack_require__.s = 7);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -217,7 +217,7 @@ exports.default = function () {
   return path;
 };
 
-var _isGitHubPage = __webpack_require__(3);
+var _isGitHubPage = __webpack_require__(4);
 
 var _isGitHubPage2 = _interopRequireDefault(_isGitHubPage);
 
@@ -275,15 +275,42 @@ exports.default = function (_ref) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.map = map;
+/**
+ * ある範囲から別の範囲に数値を再マップする
+ * @param  {Number} value  変換される値
+ * @param  {Number} start1 現在の値の範囲の下限
+ * @param  {Number} stop1  現在の値の範囲の上限
+ * @param  {Number} start2 再マップしたい値の範囲の下限
+ * @param  {Number} stop2  再マップしたい値の範囲の上限
+ * @return {Number}        再マップされた数値
+ * @example
+ *   map(50, 0, 100, 0, 200)
+ *   returns 100
+ */
+function map(value, start1, stop1, start2, stop2) {
+  return (value - start1) / (stop1 - start1) * (stop2 - start2) + start2;
+}
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 
 exports.default = function () {
   return location.host.indexOf('github.io') !== -1;
 };
 
 /***/ }),
-/* 4 */,
 /* 5 */,
-/* 6 */
+/* 6 */,
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -293,6 +320,10 @@ var _Sound = __webpack_require__(0);
 
 var _Sound2 = _interopRequireDefault(_Sound);
 
+var _math = __webpack_require__(3);
+
+var math = _interopRequireWildcard(_math);
+
 var _loadBuffer = __webpack_require__(2);
 
 var _loadBuffer2 = _interopRequireDefault(_loadBuffer);
@@ -301,8 +332,13 @@ var _filePath = __webpack_require__(1);
 
 var _filePath2 = _interopRequireDefault(_filePath);
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+/**
+ * canvasのセットアップ
+ */
 var c = document.getElementById('canvas');
 var cw = 0;
 var ch = 0;
@@ -310,9 +346,15 @@ c.width = cw = window.innerWidth;
 c.height = ch = window.innerHeight;
 var ctx = c.getContext('2d');
 
+/**
+ * audioのセットアップ
+ */
 var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 var url = (0, _filePath2.default)() + '/sound/sample.mp3';
 
+/**
+ * Soundクラスのインスタンス
+ */
 var sound = null;
 
 function setup(buffer) {
@@ -332,11 +374,20 @@ function draw() {
 
   var spectrum = sound.frequencySpectrum();
 
+  var x = 0;
+  var y = 0;
+
   spectrum.forEach(function (value, index) {
-    ctx.fillRect(index * 3, ch / 2, 1, -value);
+    x = math.map(index, 0, spectrum.length, 0, cw);
+    y = math.map(value, 0, 255, 0, ch);
+    ctx.fillRect(x, ch, 1, -y);
   });
 }
 
+/**
+ * 音声ファイルを読み込み完了後
+ * audioContextをセットアップして再生と描画を開始する
+ */
 (0, _loadBuffer2.default)({
   audioCtx: audioCtx,
   url: url
@@ -344,127 +395,6 @@ function draw() {
   setup(buffer);
   draw();
 });
-
-//
-// let sound;
-// let amplitude;
-// /**
-//  * バッファサイズ（fft.analyze()で取得する配列のインデックス数）
-//  */
-// const bufferSize = 1024;
-// const fft = new p5.FFT(0.8, bufferSize);
-//
-// /**
-//  * 音量
-//  */
-// const maxAmp = 1;
-// const amp = 0.3;
-// const ampScale = maxAmp / amp;
-//
-// /**
-//  * 描画に利用する角度と速度
-//  */
-// let degree = [];
-// let velocity = [];
-//
-// let hue = null;
-// const startX = (window.innerWidth / 4);
-// let x = 0;
-// let spectrum = null;
-// let amplitudeLevel = 0;
-// let average = 0;
-// let spectrumLength = 0;
-//
-// /**
-//  * 描画をチューニングするための累乗
-//  */
-// const tuningMultiply = Math.pow(1.1, 3);
-//
-// const sketch = function (p) {
-//   p.disableFriendlyErrors = true;
-//
-//   p.preload = () => {
-//     sound = p.loadSound(`${filePath()}/sound/isochronous_free_ver.mp3`);
-//   };
-//
-//   p.setup = () => {
-//     const canvas = p.createCanvas(p.windowWidth, p.windowHeight);
-//
-//     canvas.mouseClicked(p.togglePlay);
-//
-//     p.background(0);
-//     p.noStroke(0);
-//     p.colorMode(p.HSB, 360, 100, 100, 100);
-//
-//     amplitude = new p5.Amplitude();
-//     sound.loop(0, 0, amp);
-//
-//     for (let i = 0; i < bufferSize; i += 1) {
-//       degree[i] = 0;
-//       velocity[i] = 0;
-//     }
-//   };
-//
-//   p.draw = () => {
-//     p.background(0, 20);
-//     p.translate(p.width / 2, p.height / 2);
-//
-//     amplitudeLevel = amplitude.getLevel() * ampScale;
-//     average = fft.getEnergy(1, 20000);
-//
-//     /**
-//      * 後の処理でspectrum[i]から
-//      * fft.getEnergy(1, 20000)（1~20000Hzの周波数の振幅の平均値）の値を減算する
-//      * 減算結果で負数を取得したくないため、fft.getEnergy(1, 20000)より大きい振幅のみを抽出しとく
-//      */
-//     spectrum = fft.analyze()
-//       .filter((val) => {
-//         return val > average;
-//       })
-//       .map((val) => {
-//         return (val - average) * tuningMultiply
-//       });
-//     spectrumLength = spectrum.length;
-//
-//     // for (let i = 0; i < bufferSize; i += 1) {
-//     spectrum.forEach((val, i) => {
-//       // const level = spectrum[i];
-//       hue = p.map(i, 0, spectrumLength, 0, 360);
-//       x = p.map(i, 0, spectrumLength, 0, startX + p.map(amplitudeLevel, 0, 1, 0, 200));
-//
-//       /*
-//        * levelの値から直径の値を求める
-//        * 直径に対してpow(1.1, 3)を乗算しているが
-//        * 直径が大きいほど大きな値を返すためのチューニング値
-//        */
-//       const diameter = p.map(val, 0, 255, 0, 50) * tuningMultiply;
-//
-//       velocity[i] += p.map(val, 0, 255, 0, 0.02);
-//
-//       if (velocity[i] > 5) {
-//         velocity[i] = 0;
-//       }
-//
-//       degree[i] += velocity[i];
-//
-//       p.push();
-//       p.rotate(p.radians(degree[i]));
-//       p.fill(hue, 100, 100, 50);
-//       p.ellipse(x, 0, diameter, diameter);
-//       p.pop();
-//     });
-//   };
-//
-//   p.togglePlay = () => {
-//     if (sound.isPlaying()) {
-//       sound.pause();
-//     } else {
-//       sound.loop(0, 0, amp);
-//     }
-//   }
-// };
-//
-// new p5(sketch, document.body);
 
 /***/ })
 /******/ ]);

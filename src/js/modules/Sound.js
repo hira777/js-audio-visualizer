@@ -1,5 +1,5 @@
 export default class Sound {
-  constructor({audioCtx, buffer}) {
+  constructor({ audioCtx, buffer }) {
     /**
      * AudioBufferSourceNodeを生成
      */

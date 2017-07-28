@@ -3,9 +3,6 @@ const path = require('path');
 module.exports = {
   entry: {
     'visualizer1/app': './src/js/visualizer1/app',
-    'visualizer2/app': './src/js/visualizer2/app',
-    'visualizer3/app': './src/js/visualizer3/app',
-    'visualizer4/app': './src/js/visualizer4/app',
   },
 
   output: {
