@@ -30,6 +30,7 @@
     "webpack": "webpack --colors --display-error-details --progress"
   },
   "dependencies": {
+    "p5": "^0.5.11",
     "reset-css": "^2.2.0"
   }
 }
