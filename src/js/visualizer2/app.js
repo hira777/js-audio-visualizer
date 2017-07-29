@@ -14,6 +14,11 @@ c.width = cw = window.innerWidth;
 c.height = ch = window.innerHeight;
 const ctx = c.getContext('2d');
 
+window.addEventListener('resize', () => {
+  c.width = cw = window.innerWidth;
+  c.height = ch = window.innerHeight;
+});
+
 /**
  * audioのセットアップ
  */
@@ -30,8 +35,6 @@ let sound = null;
  */
 let degree = [];
 let velocity = [];
-let hue = 0;
-const endX = (window.innerWidth / 6);
 
 /**
  * 描画をチューニングするための累乗
@@ -48,6 +51,7 @@ function setup(buffer) {
   sound = new Sound({
     audioCtx,
     buffer,
+    smoothing: 0.5
   });
   sound.setVolume(0.2);
   sound.start();
@@ -56,26 +60,25 @@ function setup(buffer) {
 function draw() {
   requestAnimationFrame(draw);
 
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
   ctx.fillRect(0, 0, cw, ch);
 
+  const amplitudeLevel = sound.amplitudeLevel();
   const spectrum = sound.AboveAverageFrequencySpectrum(tuningMultiply);
   const spectrumLength = spectrum.length;
 
-  let x = 0;
+  ctx.save();
+  ctx.globalAlpha = 0.8;
 
   spectrum.forEach((value, index) => {
-    hue = math.map(index, 0, spectrumLength, 0, 360);
-    x = math.map(index, 0, spectrumLength, 0, endX);
+    const hue = math.map(index, 0, spectrumLength, 0, 360);
+    const maxX = (window.innerWidth > window.innerHeight) ? window.innerWidth / 8 : window.innerHeight / 8;
+    const x = math.map(index, 0, spectrumLength, 0, maxX + math.map(amplitudeLevel, 0, 255, 0, 200));
 
-    /*
-     * levelの値から直径の値を求める
-     * 直径に対してpow(1.1, 3)を乗算しているが
-     * 直径が大きいほど大きな値を返すためのチューニング値
-     */
-    const radius = math.map(value, 0, 255, 0, 25) * tuningMultiply;
+    const maxRadius = 25;
+    const radius = math.map(value, 0, 255, 0, maxRadius) * tuningMultiply;
 
-    velocity[index] += math.map(value, 0, 255, 0, 0.1);
+    velocity[index] += math.map(value, 0, 255, 0, 0.05);
 
     if (velocity[index] > 5) {
       velocity[index] = 0;
@@ -92,6 +95,8 @@ function draw() {
     ctx.fill();
     ctx.restore();
   });
+
+  ctx.restore();
 }
 
 /**
