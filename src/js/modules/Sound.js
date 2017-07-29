@@ -40,6 +40,13 @@ export default class Sound {
     this.freqs = new Uint8Array(this.analyser.frequencyBinCount);
 
     /**
+     * 時間領域の波形データを格納する配列を生成する
+     * this.analyser.frequencyBinCountのデフォルトは1024のため
+     * 1024個のインデックスを持った配列が生成される
+     */
+    this.times = new Uint8Array(this.analyser.frequencyBinCount);
+
+    /**
      * GainNodeにAudioBufferSourceNodeを接続
      */
     this.souce.connect(this.gain);
@@ -91,6 +98,10 @@ export default class Sound {
     return this.freqs;
   }
 
+  /**
+   * 周波数領域の平均値より高い波形データを返す
+   * @return {array} freqs 周波数領域の波形データ
+   */
   AboveAverageFrequencySpectrum(tuningMultiply = 1) {
     /**
      * 周波数領域の波形データを引数の配列freqsに格納する
@@ -108,9 +119,9 @@ export default class Sound {
   }
 
   /**
-   * 周波数領域の波形データから、全インデックスのデータの平均値を減算したものを返す
-   * 例えばthis.freqs=[4, 2, 10, 30, 2, 6]だとすると平均は9になり
-   * 各インデックスのデータから9を減算する、計算結果が負数の場合0にするため
+   * 周波数領域の波形データの偏差（負数は0にする）を返す
+   * 例えばthis.freqs=[4, 2, 10, 30, 2, 6]だとすると平均値は9になり
+   * 各インデックスのデータから9を減算する、今回偏差が負数の場合0にするため
    * this.freqs=[4, 2, 10, 30, 2, 6];
    * ↓
    * this.freqs=[0, 0, 1, 21, 0, 0];
@@ -129,5 +140,24 @@ export default class Sound {
     return this.freqs.map((value) => {
       return (value > average) ? value - average : 0;
     });
+  }
+
+  /**
+   * 時間領域の波形データの二乗平均平方根を返す
+   */
+  amplitudeLevel() {
+    /**
+     * 時間領域の波形データを引数の配列freqsに格納する
+     * analyser.fftSize / 2のインデックス数の値がthis.freqsに格納される
+     */
+    this.analyser.getByteTimeDomainData(this.times);
+
+    return Math.sqrt(
+      this.times.map((value) => {
+        return value * value;
+      }).reduce((sum, value) => {
+        return sum + value;
+      })
+    );
   }
 }
