@@ -1,5 +1,5 @@
 export default class Sound {
-  constructor({audioCtx, buffer}) {
+  constructor({audioCtx, buffer, smoothing = 0.8}) {
     /**
      * AudioBufferSourceNodeを生成
      */
@@ -11,6 +11,11 @@ export default class Sound {
     this.souce.buffer = buffer;
 
     /**
+     * 音量を調整するGainNodeを生成する
+     */
+    this.gain = audioCtx.createGain();
+
+    /**
      * 音声の時間と周波数を解析するAnalyserNodeを生成
      */
     this.analyser = audioCtx.createAnalyser();
@@ -20,7 +25,7 @@ export default class Sound {
      * 0~1の範囲で設定でき、1に近いほど毎時取得できるデータの差が小さくなるため
      * 描画が滑らかになる
      */
-    this.analyser.smoothingTimeConstant = 0.8;
+    this.analyser.smoothingTimeConstant = smoothing;
 
     /**
      * FFTサイズ
@@ -35,21 +40,68 @@ export default class Sound {
     this.freqs = new Uint8Array(this.analyser.frequencyBinCount);
 
     /**
-     * AnalyserNodeにAudioBufferSourceNode接続
+     * GainNodeにAudioBufferSourceNodeを接続
      */
-    this.souce.connect(this.analyser);
+    this.souce.connect(this.gain);
 
     /**
-     * AudioBufferSourceNodeをAnalyserNodeに接続
+     * AnalyserNodeにGainNodeを接続
+     */
+    this.gain.connect(this.analyser);
+
+    /*
+     * audioCtxにAnalyserNodeを接続
      */
     this.analyser.connect(audioCtx.destination);
   }
 
+  /**
+   * 再生を開始する
+   */
   start() {
     this.souce.start(0);
   }
 
+  /**
+   * 音量を変更する
+   * @param {number} volume 音量 0~1まで指定可能
+   */
+  setVolume(volume) {
+    this.gain.gain.value = volume;
+  }
+
+  /**
+   * ミュート
+   */
+  mute() {
+    this.gain.gain.value = 0;
+  }
+
+  /**
+   * 周波数領域の波形データを返す
+   * @return {array} freqs 周波数領域の波形データ
+   */
   frequencySpectrum() {
+    /**
+     * 周波数領域の波形データを引数の配列freqsに格納する
+     * analyser.fftSize / 2のインデックス数の値がthis.freqsに格納される
+     */
+    this.analyser.getByteFrequencyData(this.freqs);
+
+    return this.freqs;
+  }
+
+  /**
+   * 周波数領域の波形データから、全インデックスのデータの平均値を減算したものを返す
+   * 例えばthis.freqs=[4, 2, 10, 30, 2, 6]だとすると平均は9になり
+   * 各インデックスのデータから9を減算する、計算結果が負数の場合0にするため
+   * this.freqs=[4, 2, 10, 30, 2, 6];
+   * ↓
+   * this.freqs=[0, 0, 1, 21, 0, 0];
+   * になる
+   * @return {array} freqs 周波数領域の波形データ
+   */
+  adjustedFrequencySpectrum() {
     /**
      * 周波数領域の波形データを引数の配列freqsに格納する
      * analyser.fftSize / 2のインデックス数の値がthis.freqsに格納される

@@ -30,6 +30,7 @@ function setup(buffer) {
     audioCtx,
     buffer,
   });
+  sound.setVolume(0.5);
 
   ctx.fillStyle = '#fff';
   sound.start();
@@ -40,7 +41,7 @@ function draw() {
 
   ctx.clearRect(0, 0, cw, ch);
 
-  const spectrum = sound.frequencySpectrum();
+  const spectrum = sound.adjustedFrequencySpectrum();
 
   let x = 0;
   let y = 0;
