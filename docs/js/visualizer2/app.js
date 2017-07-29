@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 8);
+/******/ 	return __webpack_require__(__webpack_require__.s = 9);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -399,7 +399,8 @@ function map(value, start1, stop1, start2, stop2) {
 /* 5 */,
 /* 6 */,
 /* 7 */,
-/* 8 */
+/* 8 */,
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -439,38 +440,79 @@ var ctx = c.getContext('2d');
  * audioのセットアップ
  */
 var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-var url = (0, _filePath2.default)() + '/sound/sample.mp3';
+var url = (0, _filePath2.default)() + '/sound/time_leap_inst_free_ver1.mp3';
 
 /**
  * Soundクラスのインスタンス
  */
 var sound = null;
 
+/**
+ * 描画に利用する角度と速度
+ */
+var degree = [];
+var velocity = [];
+var hue = 0;
+var endX = window.innerWidth / 6;
+
+/**
+ * 描画をチューニングするための累乗
+ */
+var tuningMultiply = Math.pow(1.1, 3);
+
 function setup(buffer) {
+  var bufferSize = 1024;
+  for (var i = 0; i < bufferSize; i += 1) {
+    degree[i] = 0;
+    velocity[i] = 0;
+  }
+
   sound = new _Sound2.default({
     audioCtx: audioCtx,
     buffer: buffer
   });
-  sound.setVolume(0.5);
-
-  ctx.fillStyle = '#fff';
+  sound.setVolume(0.2);
   sound.start();
 }
 
 function draw() {
   requestAnimationFrame(draw);
 
-  ctx.clearRect(0, 0, cw, ch);
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+  ctx.fillRect(0, 0, cw, ch);
 
-  var spectrum = sound.adjustedFrequencySpectrum();
+  var spectrum = sound.AboveAverageFrequencySpectrum(tuningMultiply);
+  var spectrumLength = spectrum.length;
 
   var x = 0;
-  var y = 0;
 
   spectrum.forEach(function (value, index) {
-    x = math.map(index, 0, spectrum.length, 0, cw);
-    y = math.map(value, 0, 255, 0, ch);
-    ctx.fillRect(x, ch, 1, -y);
+    hue = math.map(index, 0, spectrumLength, 0, 360);
+    x = math.map(index, 0, spectrumLength, 0, endX);
+
+    /*
+     * levelの値から直径の値を求める
+     * 直径に対してpow(1.1, 3)を乗算しているが
+     * 直径が大きいほど大きな値を返すためのチューニング値
+     */
+    var radius = math.map(value, 0, 255, 0, 25) * tuningMultiply;
+
+    velocity[index] += math.map(value, 0, 255, 0, 0.1);
+
+    if (velocity[index] > 5) {
+      velocity[index] = 0;
+    }
+
+    degree[index] += velocity[index];
+
+    ctx.save();
+    ctx.translate(cw / 2, ch / 2);
+    ctx.rotate(degree[index] * Math.PI / 180);
+    ctx.fillStyle = 'hsl(' + hue + ', 100%, 50%)';
+    ctx.beginPath();
+    ctx.arc(x, 0, radius, 0, Math.PI * 2, false);
+    ctx.fill();
+    ctx.restore();
   });
 }
 

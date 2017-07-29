@@ -91,6 +91,22 @@ export default class Sound {
     return this.freqs;
   }
 
+  AboveAverageFrequencySpectrum(tuningMultiply = 1) {
+    /**
+     * 周波数領域の波形データを引数の配列freqsに格納する
+     * analyser.fftSize / 2のインデックス数の値がthis.freqsに格納される
+     */
+    this.analyser.getByteFrequencyData(this.freqs);
+
+    const average = this.freqs.reduce((sum, value) => sum + value, 0) / this.fftSize;
+
+    return this.freqs.filter((value) => {
+      return value > average;
+    }).map((value) => {
+      return (value - average) * tuningMultiply;
+    });
+  }
+
   /**
    * 周波数領域の波形データから、全インデックスのデータの平均値を減算したものを返す
    * 例えばthis.freqs=[4, 2, 10, 30, 2, 6]だとすると平均は9になり
