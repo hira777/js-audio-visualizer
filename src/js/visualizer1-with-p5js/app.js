@@ -10,14 +10,7 @@ const fft = new p5.FFT();
 /**
  * 音量
  */
-const maxAmp = 1;
 const amp = 0.3;
-
-/**
- * 半径の初期値
- */
-const initialRadius = 200;
-const initialCenterCircleRadius = 70;
 
 const sketch = function (p) {
   p.preload = () => {
@@ -34,15 +27,23 @@ const sketch = function (p) {
 
   p.draw = () => {
     p.background(0);
-    p.translate(p.width / 2, p.height / 2);
-
-    const waveform = fft.waveform();
-    const bufferSize = waveform.length;
-    const level = amplitude.getLevel() * (maxAmp / amp);
+    p.stroke(255);
+    p.translate(0, p.height);
 
     const average = fft.getEnergy(1, 20000);
-    const spectrum = fft.analyze().map((val) => {return (value > average) ? value - average : 0;});
+    const spectrum = fft.analyze().map((value) => {
+      return (value > average) ? value - average : 0;
+    });
+    const spectrumLength = spectrum.length;
 
+    let x = 0;
+    let y = 0;
+
+    spectrum.forEach((value, index) => {
+      x = p.map(index, 0, spectrumLength, 0, p.width);
+      y = p.map(value, 0, 255, 0, p.height);
+      p.line(x, 0, x, -y);
+    });
   };
 
   p.togglePlay = () => {

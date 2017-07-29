@@ -1,5 +1,5 @@
 export default class Sound {
-  constructor({ audioCtx, buffer }) {
+  constructor({audioCtx, buffer}) {
     /**
      * AudioBufferSourceNodeを生成
      */
@@ -20,7 +20,7 @@ export default class Sound {
      * 0~1の範囲で設定でき、1に近いほど毎時取得できるデータの差が小さくなるため
      * 描画が滑らかになる
      */
-    this.analyser.smoothingTimeConstant = 0.5;
+    this.analyser.smoothingTimeConstant = 0.8;
 
     /**
      * FFTサイズ
