@@ -85,6 +85,13 @@ export default class Sound {
   }
 
   /**
+   * 接続を解除する
+   */
+  disconnect() {
+    this.souce.disconnect();
+  }
+
+  /**
    * 周波数領域の波形データを返す
    * @return {array} freqs 周波数領域の波形データ
    */
