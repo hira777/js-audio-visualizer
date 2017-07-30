@@ -16,10 +16,17 @@ h1 {
 
   .list-item {
     width: 300px;
-    margin-left: 50px;
-    padding: 20px 0;
+    margin: 40px 0 0 50px;
 
     &:first-child {
+      margin-left: 0;
+    }
+
+    &:nth-child(1), &:nth-child(2), &:nth-child(3) {
+      margin-top: 0;
+    }
+
+    &:nth-child(3n+1) {
       margin-left: 0;
     }
 

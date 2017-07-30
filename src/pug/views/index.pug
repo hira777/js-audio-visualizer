@@ -1,0 +1,21 @@
+extends ../include/_layout
+block var
+  - title = 'JS Audio Visualizer'
+  - path = './'
+block body
+  .container
+    h1 JS Audio Visualizer
+    .list
+      .list-item
+        a(href="visualizer1")
+          img(src="image/visualizer1.png")
+          p visualizer1
+      .list-item
+        a(href="visualizer1-with-p5js")
+          img(src="image/visualizer1-with-p5js.png")
+          p visualizer1-with-p5js
+      .list-item
+        a(href="visualizer2")
+          img(src="image/visualizer2.png")
+          p visualizer2
+block end_of_body

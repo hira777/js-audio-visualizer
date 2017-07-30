@@ -39,13 +39,15 @@ function setup(buffer) {
 function draw() {
   requestAnimationFrame(draw);
 
-  ctx.clearRect(0, 0, cw, ch);
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, cw, ch);
 
   const spectrum = sound.adjustedFrequencySpectrum();
 
   let x = 0;
   let y = 0;
 
+  ctx.fillStyle = '#fff';
   spectrum.forEach((value, index) => {
     x = math.map(index, 0, spectrum.length, 0, cw);
     y = math.map(value, 0, 255, 0, ch);
