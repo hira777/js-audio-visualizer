@@ -5,6 +5,9 @@ module.exports = {
     'visualizer1/app': './src/js/visualizer1/app',
     'visualizer1-with-p5js/app': './src/js/visualizer1-with-p5js/app',
     'visualizer2/app': './src/js/visualizer2/app',
+    'visualizer2-with-p5js/app': './src/js/visualizer2-with-p5js/app',
+    'visualizer3-with-p5js/app': './src/js/visualizer3-with-p5js/app',
+    'visualizer4-with-p5js/app': './src/js/visualizer4-with-p5js/app',
   },
 
   output: {
