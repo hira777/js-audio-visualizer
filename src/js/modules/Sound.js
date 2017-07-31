@@ -93,16 +93,42 @@ export default class Sound {
 
   /**
    * 周波数領域の波形データを返す
+   * 引数を指定すれば、指定した範囲のHzの波形データを返す
+   * @param {number} minHz
+   * @param {number} maxHz
    * @return {array} freqs 周波数領域の波形データ
    */
-  frequencySpectrum() {
+  frequencySpectrum(minHz, maxHz) {
     /**
      * 周波数領域の波形データを引数の配列freqsに格納する
      * analyser.fftSize / 2のインデックス数の値がthis.freqsに格納される
      */
     this.analyser.getByteFrequencyData(this.freqs);
 
-    return this.freqs;
+    if (typeof minHz === 'undefined' && typeof maxHz === 'undefined') {
+      return this.freqs;
+    } else {
+      /**
+       * AudioContextのサンプルレート(44100で固定)
+       */
+      const sampleRate = 44100;
+      let hz = 0;
+      let spectrum = [];
+
+      this.freqs.forEach((value, index) => {
+        // 0 * 44100 / 2048 = 0.0 Hz
+        // 1 * 44100 / 2048 = 21.53 Hz
+        // 2 * 44100 / 2048 = 43.06 Hz
+        // 3 * 44100 / 2048 = 64.59 Hz
+        hz = index * sampleRate / this.analyser.fftSize;
+
+        if (hz > minHz && hz < maxHz) {
+          spectrum.push(value);
+        }
+      });
+
+      return spectrum;
+    }
   }
 
   /**
@@ -150,7 +176,8 @@ export default class Sound {
   }
 
   /**
-   * 時間領域の波形データの二乗平均平方根を返す
+   * 時間領域の波形データの二乗平均平方根した音の大きさを返す
+   * @return {number} 音の大きさ
    */
   amplitudeLevel() {
     /**
@@ -166,5 +193,16 @@ export default class Sound {
         return sum + value;
       })
     );
+  }
+
+  /**
+   * 波形データの偏差したものを返す
+   */
+  deviation(spectrum) {
+    const average = spectrum.reduce((sum, value) => sum + value, 0) / spectrum.length;
+
+    return spectrum.map((value) => {
+      return (value > average) ? value - average : 0;
+    });
   }
 }

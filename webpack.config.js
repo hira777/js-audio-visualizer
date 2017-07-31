@@ -8,6 +8,7 @@ module.exports = {
     'visualizer2-with-p5js/app': './src/js/visualizer2-with-p5js/app',
     'visualizer3-with-p5js/app': './src/js/visualizer3-with-p5js/app',
     'visualizer4-with-p5js/app': './src/js/visualizer4-with-p5js/app',
+    'visualizer5/app': './src/js/visualizer5/app',
   },
 
   output: {
