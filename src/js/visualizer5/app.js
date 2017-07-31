@@ -47,13 +47,10 @@ function draw() {
   ctx.clearRect(0, 0, cw, ch);
 
   const amplitudeLevel = sound.amplitudeLevel();
-  const spectrum = sound.deviation(sound.frequencySpectrum(0, 2000));
+  const spectrum = sound.deviation(sound.frequencySpectrum(1000, 3000));
   const spectrumLength = spectrum.length;
 
-  ctx.globalAlpha = 0.8;
-
   ctx.save();
-  ctx.globalAlpha = 0.8;
   ctx.translate(cw / 2, ch / 2);
 
   spectrum.forEach((value, index) => {
@@ -61,7 +58,7 @@ function draw() {
       ctx,
       bufferSize: spectrumLength,
       index,
-      waveform: value,
+      waveform: (value !== 0) ? value * Math.pow(1.1, 5) : 1,
       radius: math.map(amplitudeLevel, 0, 255, 150, 200),
       lineWidth: 5,
     })
