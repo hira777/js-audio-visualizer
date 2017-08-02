@@ -44,7 +44,8 @@ function setup(buffer) {
 function draw() {
   requestAnimationFrame(draw);
 
-  ctx.clearRect(0, 0, cw, ch);
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+  ctx.fillRect(0, 0, cw, ch);
 
   const amplitudeLevel = sound.amplitudeLevel();
   const spectrum = sound.deviation(sound.frequencySpectrum(1000, 3000));
